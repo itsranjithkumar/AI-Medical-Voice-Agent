@@ -3,7 +3,10 @@
 
 import { motion } from "motion/react";
 import { FeaturesBentoGrid } from "./_components/FeaturesBentoGrid";
-
+import { useUser } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 export default function HeroSectionOne() {
   return (
     <div className="relative mx-auto my-10 flex  flex-col items-center justify-center">
@@ -53,6 +56,7 @@ export default function HeroSectionOne() {
             Delivering world-class AI-powered medical solutions to improve patient care and outcomes.
             Automating workflows, streamlining processes, and enhancing efficiency.
         </motion.p>
+        <Link href={"/sign-in"}>
         <motion.div
           initial={{
             opacity: 0,
@@ -67,12 +71,11 @@ export default function HeroSectionOne() {
           className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
         >
           <button className="w-60 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200">
-            Explore Now
-          </button>
-          <button className="w-60 transform rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-100 dark:border-gray-700 dark:bg-black dark:text-white dark:hover:bg-gray-900">
-            Contact Support
+            Get Started
           </button>
         </motion.div>
+        </Link>
+        
         <motion.div
           initial={{
             opacity: 0,
@@ -105,15 +108,23 @@ export default function HeroSectionOne() {
 }
 
 const Navbar = () => {
+  const { user } = useUser();
   return (
     <nav className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
       <div className="flex items-center gap-2">
         <div className="size-7 rounded-full bg-gradient-to-br from-violet-500 to-pink-500" />
         <h1 className="text-base font-bold md:text-2xl">Aceternity UI</h1>
       </div>
-      <button className="w-24 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32 dark:bg-white dark:text-black dark:hover:bg-gray-200">
+      {!user ? <Link href={"/sign-in"}>
+        <button className="w-24 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32 dark:bg-white dark:text-black dark:hover:bg-gray-200">
         Login
       </button>
+      </Link> : (
+      <div className="flex items-center gap-5">
+        <UserButton/>
+        <Button>Dashboard</Button>
+      </div>
+      )}
     </nav>
   );
 };
