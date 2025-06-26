@@ -3,6 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/config/db";
 import { usersTable } from "@/config/schema";
 import { eq } from "drizzle-orm";
+
 export async function POST(request: NextRequest) {
     try {
         const user = await currentUser();
@@ -28,6 +29,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(users[0]);
     } catch (e) {
         console.error('Error in POST /api/users:', e);
-        return NextResponse.json({ error: 'Internal Server Error', details: e?.message || e }, { status: 500 });
+        const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+        return NextResponse.json({ error: 'Internal Server Error', details: errorMessage }, { status: 500 });
     }
 }
+
+
