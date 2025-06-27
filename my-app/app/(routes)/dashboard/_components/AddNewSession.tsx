@@ -23,6 +23,7 @@ const AddNewSession = () => {
     const [note,setNote]=useState <string>('');
     const [loading,setLoading]=useState(false);
     const [suggestedDoctors,setSuggestedDoctors]=useState <doctorAgent[]>([]);
+    const router = useRouter();
     const [selectedDoctor, setSelectedDoctor] = useState<doctorAgent | null>(null);
     const OnClickNext = async () => {
         setLoading(true);
@@ -48,6 +49,8 @@ const AddNewSession = () => {
         {
             console.log(result.data.sessionId);
             // Route new Conversation Screen 
+            router.push('/dashboard/medical-agent/'+result.data.sessionId);
+
         }
         setLoading(false);
         
@@ -84,7 +87,7 @@ const AddNewSession = () => {
               {/* suggested Doctors */}
               {Array.isArray(suggestedDoctors) && suggestedDoctors.map((doctor, index) => (
                 <SuggestedDoctorCard key={index} doctorAgent={doctor}
-                setSelecttedDoctor={() =>setSelectedDoctor(doctor)} 
+                setSelectedDoctor={() =>setSelectedDoctor(doctor)} 
                 //@ts-ignore
                 selectedDoctor={selectedDoctor}/>
               ))}

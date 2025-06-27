@@ -20,7 +20,9 @@ export async function POST(req:NextRequest) {
           const rawResp=completion.choices[0].message;
           //@ts-ignore
           const Resp=rawResp.content.trim().replace('```json','').replace('```','');
+          console.log("Raw OpenAI response:", Resp);
           const JSONResp=JSON.parse(Resp);
+          console.log("Parsed JSON:", JSONResp);
           return NextResponse.json(JSONResp);
     }catch(e)
     {
