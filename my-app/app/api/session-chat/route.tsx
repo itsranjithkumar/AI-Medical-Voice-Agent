@@ -1,5 +1,6 @@
 import { db } from "@/config/db";
 import { SessionChatTable } from "@/config/schema";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { currentUser } from "@clerk/nextjs/server";
@@ -31,6 +32,28 @@ export async function GET(req: NextRequest) {
     //@ts-ignore
     const result = await db.select().from(SessionChatTable).where(eq(SessionChatTable.sessionId, sessionId));
 
-    return NextResponse.json(result[0]);
+    try {
+        if (!result[0]) {
+            return NextResponse.json({ error: 'Session not found' }, { status: 404 } as any);
+        }
+        let selectedDoctor = undefined;
+        if (result[0].selectedDoctors) {
+            try {
+                const parsed = typeof result[0].selectedDoctors === 'string' ? JSON.parse(result[0].selectedDoctors) : result[0].selectedDoctors;
+                selectedDoctor = Array.isArray(parsed) ? parsed[0] : parsed;
+            } catch (e) {
+                console.error('Error parsing selectedDoctors:', e, result[0].selectedDoctors);
+                selectedDoctor = undefined;
+            }
+        }
+        const response = {
+            ...result[0],
+            selectedDoctor,
+        };
+        return NextResponse.json(response);
+    } catch (error) {
+        console.error('API GET /api/session-chat error:', error);
+        return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : error }, { status: 500 } as any);
+    }
 
 }
