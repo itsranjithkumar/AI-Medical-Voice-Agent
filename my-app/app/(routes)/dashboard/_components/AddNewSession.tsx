@@ -33,7 +33,17 @@ const AddNewSession = () => {
 
         console.log(result.data);
         // Ensure suggestedDoctors is always an array
-        setSuggestedDoctors(Array.isArray(result.data) ? result.data : []);
+        if (Array.isArray(result.data)) {
+    setSuggestedDoctors(result.data);
+} else if (Array.isArray(result.data.suggestedDoctors)) {
+    setSuggestedDoctors(result.data.suggestedDoctors);
+} else if (Array.isArray(result.data.doctors)) {
+    setSuggestedDoctors(result.data.doctors);
+} else if (result.data && typeof result.data === 'object') {
+    setSuggestedDoctors([result.data]);
+} else {
+    setSuggestedDoctors([]);
+}
         setLoading(false);
     }
 
