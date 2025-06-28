@@ -17,6 +17,11 @@ type sessionDetails={
 
 }
 
+type messages={
+  role:string,
+  content:string
+}
+
 import { Circle, PhoneCall, PhoneOff } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -27,9 +32,9 @@ const MedicalVoiceAgent = () => {
   const [sessionDetails,setSessionDetails]=useState<sessionDetails>();
   const [callStarted,setCallStarted]=useState(false);
   const [vapiInstance,setVapiInstance]=useState<any>();
-
-
-
+  const [currentRoll,setCurrentRoll]=useState<string|null>() ;
+  const [liveTranscript,setLiveTranscript]=useState<string>();
+  const [messages,setMessages]=useState<messages[]>([])
 
   useEffect(()=>{
     sessionId&&GetSessionDetails();
@@ -57,8 +62,25 @@ const MedicalVoiceAgent = () => {
     });
     vapi.on('message', (message) => {
       if (message.type === 'transcript') {
-        console.log(`${message.role}: ${message.transcript}`);
+        const { role, transcriptType, transcript } = message;
+        setCurrentRoll(role);
+        if (transcriptType === 'partial') {
+          setLiveTranscript(transcript);
+        } else if (transcriptType === 'final') {
+          setMessages((prev: any) => [...prev, { role, content: transcript }]);
+          setLiveTranscript('');
+          setCurrentRoll(null);
+        }
       }
+    });
+
+    vapi.on('speech-start', () => {
+      console.log('Assistant started speaking');
+      setCurrentRoll('assistant');
+    });
+    vapi.on('speech-end', () => {
+      console.log('Assistant stopped speaking');
+      setCurrentRoll('user');
     });
   }
 
@@ -102,9 +124,11 @@ const MedicalVoiceAgent = () => {
           <p className='text-sm text-gray-500'>AI Medical Voice Agent</p>
         </div>
       )}
-      <div className='flex flex-col items-center justify-center mt-10'>
-        <h2 className='text-gray-500'>Assistant Msg</h2>
-        <h2 className='text-lg'>User Msg</h2>
+      <div className='flex flex-col items-center justify-center mt-10 overflow-y-auto'>
+        {messages?.map((msg: messages,index)=>(
+            <h2 className='text-gray-500' key={index}>{msg.role}: {msg.content}</h2>
+        ))}
+       {liveTranscript&&liveTranscript?.length>0 && <h2 className='text-lg'>{currentRoll} {liveTranscript}</h2>}
       </div>
       {!callStarted ? 
         <Button className='mt-20' onClick={startCall}> 
