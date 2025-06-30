@@ -49,15 +49,16 @@ export async function POST(request: Request) {
     
               const rawResp=completion.choices[0].message;
               //@ts-ignore
-              const Resp=rawResp.content.trim().replace('```json','').replace('```','');
-              console.log("Raw OpenAI response:", Resp);
+const Resp=rawResp.content.trim().replace('```json','').replace('```','');
+console.log("Raw OpenAI response:", Resp);
 
-              // Save to Database
-              const result=await db.update(SessionChatTable).set({
-                report:Resp
-              }).where (eq(SessionChatTable.sessionId,sessionId));
-              const JSONResp=JSON.parse(Resp);
-              return NextResponse.json(JSONResp);
+const JSONResp=JSON.parse(Resp); // Parse first!
+// Save to Database
+const result=await db.update(SessionChatTable).set({
+  report:JSONResp,
+  conversation:message
+}).where (eq(SessionChatTable.sessionId,sessionId));
+return NextResponse.json(JSONResp);
    } catch (e) {
     return NextResponse.json(e);
    }

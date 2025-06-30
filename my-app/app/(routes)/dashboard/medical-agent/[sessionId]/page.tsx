@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { doctorAgent } from '../../_components/DoctorAgentCard';
@@ -26,6 +26,7 @@ type messages={
 import { Circle, PhoneCall, PhoneOff } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 
 const MedicalVoiceAgent = () => {
@@ -37,7 +38,7 @@ const MedicalVoiceAgent = () => {
   const [liveTranscript,setLiveTranscript]=useState<string>();
   const [messages,setMessages]=useState<messages[]>([])
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   useEffect(()=>{
     sessionId&&GetSessionDetails();
   },[sessionId]);
@@ -120,6 +121,8 @@ const MedicalVoiceAgent = () => {
     vapiInstance.off('message');
     setCallStarted(false);
     setVapiInstance(null);
+    toast.success('your report is generated');
+    router.replace('/dashboard');
     const result=await GenerateReport();
     
     setLoading(false);

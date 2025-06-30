@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { currentUser } from "@clerk/nextjs/server";
+import { desc } from "drizzle-orm";
 export async function POST(req: NextRequest) {
     const {notes,selectedDoctors}=await req.json();
     const user=await currentUser();
@@ -29,8 +30,19 @@ export async function GET(req: NextRequest) {
     const {searchParams}=new URL(req.url);
     const sessionId = searchParams.get('sessionId');
     const user=await currentUser();
+    if (sessionId!=='all') 
+    {
+
+    }
+    else {
+    const email = user?.primaryEmailAddress?.emailAddress;
+    if (!email) {
+        return NextResponse.json({ error: 'User email not found' }, { status: 400 } as any);
+    }
+    const result = await db.select().from(SessionChatTable)
+        .where(eq(SessionChatTable.createdBy, email))
+        .orderBy(desc(SessionChatTable.id));
     //@ts-ignore
-    const result = await db.select().from(SessionChatTable).where(eq(SessionChatTable.sessionId, sessionId));
 
     try {
         if (!result[0]) {
@@ -55,5 +67,5 @@ export async function GET(req: NextRequest) {
         console.error('API GET /api/session-chat error:', error);
         return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : error }, { status: 500 } as any);
     }
-
+    }
 }
