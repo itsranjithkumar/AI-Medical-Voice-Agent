@@ -13,7 +13,8 @@ type sessionDetails={
   sessionId:string,
   report:JSON,
   selectedDoctor:doctorAgent,
-  createdOn:string
+  createdOn:string,
+  
 
 }
 
@@ -35,6 +36,7 @@ const MedicalVoiceAgent = () => {
   const [currentRoll,setCurrentRoll]=useState<string|null>() ;
   const [liveTranscript,setLiveTranscript]=useState<string>();
   const [messages,setMessages]=useState<messages[]>([])
+  const [loading, setLoading] = useState(false);
 
   useEffect(()=>{
     sessionId&&GetSessionDetails();
@@ -50,7 +52,31 @@ const MedicalVoiceAgent = () => {
     const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
     setVapiInstance(vapi);
 
-    vapi.start(process.env.NEXT_PUBLIC_VAPI_VOICE_ASSISTANT_ID!);
+    const VapiAgentConfig={
+      name:'AI Medical Doctor Voice Agent',
+      firstMessage: "Hi there! I'm here to help you with your medical questions.",
+      transcriber:{
+        provider:'assembly-ai',
+        language:'en'
+      },
+      voice:{
+        provider:'playht',
+        voiceId:sessionDetails?.selectedDoctor?.voiceId
+      },model:{
+        provider:'openai',
+        model:'gpt-4',
+        messages:[
+          {
+            role:'system',
+            content:sessionDetails?.selectedDoctor?.agentPrompt
+          }
+        ]
+      }
+
+
+    }
+   //@ts-ignore
+    vapi.start(VapiAgentConfig);
 
     vapi.on('call-start', () => {
       console.log('Call started');
@@ -85,7 +111,8 @@ const MedicalVoiceAgent = () => {
   }
 
 
-  const endCall = () => {
+  const endCall = async() => {
+    setLoading(true);
     if (!vapiInstance) return;
     vapiInstance.stop();
     vapiInstance.off('call-start');
@@ -93,7 +120,22 @@ const MedicalVoiceAgent = () => {
     vapiInstance.off('message');
     setCallStarted(false);
     setVapiInstance(null);
+    const result=await GenerateReport();
+    
+    setLoading(false);
+
   };
+
+
+  const GenerateReport=async()=>{
+    const result=await axios.post('/api/generate-report',{
+      messages,
+      sessionDetail:sessionDetails,
+      sessionId:sessionId
+    });
+    console.log(result.data);
+    return result.data;
+  }
 
   // Debug: log sessionDetails to see what's coming from the API
   console.log('sessionDetails:', sessionDetails);
@@ -124,16 +166,20 @@ const MedicalVoiceAgent = () => {
           <p className='text-sm text-gray-500'>AI Medical Voice Agent</p>
         </div>
       )}
-      <div className='flex flex-col items-center justify-center mt-10 overflow-y-auto'>
-        {messages?.map((msg: messages,index)=>(
-            <h2 className='text-gray-500' key={index}>{msg.role}: {msg.content}</h2>
-        ))}
-       {liveTranscript&&liveTranscript?.length>0 && <h2 className='text-lg'>{currentRoll} {liveTranscript}</h2>}
-      </div>
+      <div className='flex flex-col items-center justify-center mt-10 overflow-y-auto w-full'>
+  <div className="w-full max-w-xl mx-auto">
+    {messages?.slice(-4).map((msg: messages,index)=> (
+        <h2 className='text-gray-500 p-2 text-center' key={index}>{msg.role}: {msg.content}</h2>
+    ))}
+    {liveTranscript && liveTranscript.length > 0 && (
+      <h2 className='text-lg text-center'>{currentRoll} {liveTranscript}</h2>
+    )}
+  </div>
+</div>
       {!callStarted ? 
         <Button className='mt-20' onClick={startCall}> 
         <PhoneCall /> Start Call</Button>
-        :<Button variant={'destructive'} onClick={endCall}> <PhoneOff/>Disconnect</Button>
+        :<Button variant={'destructive'} onClick={endCall} > <PhoneOff/>Disconnect</Button>
 }
 
     </div>
@@ -141,3 +187,7 @@ const MedicalVoiceAgent = () => {
 }
 
 export default MedicalVoiceAgent
+
+// function setLoading(arg0: boolean) {
+//   throw new Error('Function not implemented.');
+// }
