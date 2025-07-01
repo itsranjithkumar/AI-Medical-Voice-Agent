@@ -42,30 +42,9 @@ export async function GET(req: NextRequest) {
     const result = await db.select().from(SessionChatTable)
         .where(eq(SessionChatTable.createdBy, email))
         .orderBy(desc(SessionChatTable.id));
-    //@ts-ignore
 
-    try {
-        if (!result[0]) {
-            return NextResponse.json({ error: 'Session not found' }, { status: 404 } as any);
-        }
-        let selectedDoctor = undefined;
-        if (result[0].selectedDoctors) {
-            try {
-                const parsed = typeof result[0].selectedDoctors === 'string' ? JSON.parse(result[0].selectedDoctors) : result[0].selectedDoctors;
-                selectedDoctor = Array.isArray(parsed) ? parsed[0] : parsed;
-            } catch (e) {
-                console.error('Error parsing selectedDoctors:', e, result[0].selectedDoctors);
-                selectedDoctor = undefined;
-            }
-        }
-        const response = {
-            ...result[0],
-            selectedDoctor,
-        };
-        return NextResponse.json(response);
-    } catch (error) {
-        console.error('API GET /api/session-chat error:', error);
-        return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : error }, { status: 500 } as any);
-    }
+        //@ts-ignore
+        return NextResponse.json(result);
+
     }
 }

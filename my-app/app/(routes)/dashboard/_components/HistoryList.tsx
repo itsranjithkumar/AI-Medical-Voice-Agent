@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { Button } from "@/components/ui/button";
 import AddNewSessionDialog from './AddNewSession';
 import axios from 'axios';
+import HistoryTable from './HistoryTable';
+
 const HistoryList = () => {
     const [historyList, setHistoryList] = useState([])
 
@@ -27,7 +29,9 @@ const HistoryList = () => {
         <p>It looks like you haven't had any consultations yet.</p>
         <AddNewSessionDialog/>
         </div>
-        :<div>List</div>}
+        :<div>
+          <HistoryTable historyList={historyList}/>
+          </div>}
     </div>
   )
 }
