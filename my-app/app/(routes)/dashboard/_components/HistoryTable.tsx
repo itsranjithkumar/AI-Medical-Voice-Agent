@@ -11,6 +11,7 @@ import {
   //@ts-ignore
 import { SessionDetails } from "../medical-agent/[sessionId]/page"
 import { Button } from '@/components/ui/button'
+import moment from 'moment';
   type Props={
     historyList: SessionDetails[]
   }
@@ -22,9 +23,9 @@ const HistoryTable = ({historyList}:Props) => {
   <TableCaption>Previous Consultations Reports.</TableCaption>
   <TableHeader>
     <TableRow>
-      <TableHead className="w-[100px]">AI Medical Specialist</TableHead>
-      <TableHead>Description</TableHead>
-      <TableHead>Date</TableHead>
+      <TableHead className="w-[200px]">AI Medical Specialist</TableHead>
+      <TableHead className="w-[200px]">Description</TableHead>
+      <TableHead className="w-[200px]">Date</TableHead>
       <TableHead className="text-right">Action</TableHead>
     </TableRow>
   </TableHeader>
@@ -33,7 +34,7 @@ const HistoryTable = ({historyList}:Props) => {
             <TableRow key={index}>
             <TableCell className="font-medium">{record.selectedDoctor?.specialist}</TableCell>
             <TableCell>{record.notes}</TableCell>
-            <TableCell>{record.createdOn}</TableCell>
+            <TableCell>{moment(new Date(record.createdOn)).fromNow()}</TableCell>
             <TableCell className="text-right"><Button variant={'link'} size={'sm'}>View Report</Button></TableCell>
           </TableRow>
     ))}

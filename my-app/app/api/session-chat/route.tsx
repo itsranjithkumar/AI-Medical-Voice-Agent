@@ -38,8 +38,27 @@ export async function GET(req: NextRequest) {
         const result = await db.select().from(SessionChatTable)
             .where(eq(SessionChatTable.createdBy, email))
             .orderBy(desc(SessionChatTable.id));
+        // Add selectedDoctor to each session
+        const sessionsWithSelectedDoctor = result.map((session: any) => {
+            let selectedDoctor = undefined;
+            if (session.selectedDoctors) {
+                try {
+                    const parsed = typeof session.selectedDoctors === 'string'
+                        ? JSON.parse(session.selectedDoctors)
+                        : session.selectedDoctors;
+                    selectedDoctor = Array.isArray(parsed) ? parsed[0] : parsed;
+                } catch (e) {
+                    console.error('Error parsing selectedDoctors:', e, session.selectedDoctors);
+                    selectedDoctor = undefined;
+                }
+            }
+            return {
+                ...session,
+                selectedDoctor,
+            };
+        });
         //@ts-ignore
-        return NextResponse.json(result);
+        return NextResponse.json(sessionsWithSelectedDoctor);
     } else if (sessionId) {
         //@ts-ignore
         const result = await db.select().from(SessionChatTable).where(eq(SessionChatTable.sessionId, sessionId));
