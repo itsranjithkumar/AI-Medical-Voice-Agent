@@ -12,6 +12,7 @@ import {
 import { SessionDetails } from "../medical-agent/[sessionId]/page"
 import { Button } from '@/components/ui/button'
 import moment from 'moment';
+import ViewReportDialog from '@/app/_components/ViewReportDialog';
   type Props={
     historyList: SessionDetails[]
   }
@@ -35,7 +36,7 @@ const HistoryTable = ({historyList}:Props) => {
             <TableCell className="font-medium">{record.selectedDoctor?.specialist}</TableCell>
             <TableCell>{record.notes}</TableCell>
             <TableCell>{moment(new Date(record.createdOn)).fromNow()}</TableCell>
-            <TableCell className="text-right"><Button variant={'link'} size={'sm'}>View Report</Button></TableCell>
+            <TableCell className="text-right"> <Button variant={'link'} size={'sm'}></Button> <ViewReportDialog record={record}/></TableCell>
           </TableRow>
     ))}
 
