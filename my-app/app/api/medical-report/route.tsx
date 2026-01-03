@@ -40,7 +40,7 @@ export async function POST(request: Request) {
    try {
             const UserInput='AI Doctor Agent Info' + JSON.stringify(SessionDetail)+',Conversation :' + JSON.stringify(message);
             const completion = await openai.chat.completions.create({
-                model: "deepseek/deepseek-chat-v3-0324:free",
+                model: "gpt-3.5-turbo",
                 messages: [
                     {role:"system",content:REPORT_GEN_PROMPT},
                     { role: "user", content:UserInput}

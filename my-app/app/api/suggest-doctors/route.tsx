@@ -10,10 +10,10 @@ export async function POST(req:NextRequest) {
 
     try{
         const completion = await openai.chat.completions.create({
-            model: "deepseek/deepseek-chat-v3-0324:free",
+            model: "gpt-3.5-turbo",
             messages: [
                 {role:"system",content:JSON.stringify(AIDoctorAgents)},
-                { role: "user", content:"User Notes/Symptoms:"+notes+", Depends on user notes and symptons, Please suggest list of doctors , Return object JSON only  "}
+                { role: "user", content:"User Notes/Symptoms:"+notes+", Based on user notes and symptoms, please suggest a list of doctors. Return object JSON only"}
             ],
           });
 
